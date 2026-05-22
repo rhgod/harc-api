@@ -1,0 +1,82 @@
+# Build results
+bin/
+obj/
+*.dll
+*.exe
+*.o
+*.so
+*.dylib
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+# Visual Studio cache/options
+.vs/
+.vscode/
+.idea/
+
+# ReSharper
+.resharper
+.resharper.user
+*.DotSettings.user
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# Local environment files
+appsettings.Development.json
+.env
+.env.local
+.env.*.local
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+
+# Rider
+.idea/
+*.sln.iml
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Node (if used)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Logs
+*.log
+logs/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.bak
+
+# Docker
+.docker/
+
+# Additional .NET specific items
+.netcore/
+artifacts/
+PublishProfiles/
