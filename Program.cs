@@ -1,7 +1,11 @@
-using Carter;
+using FastEndpoints;
 using Scalar.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using Harc.Api.Modules.Identity.Data;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication;
+using Harc.Api.Modules.Identity.Infrastructure;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,9 +13,31 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<IdentityDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// MediatR ve Carter kurulumları
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
-builder.Services.AddCarter();
+var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.MapInboundClaims = false;
+        options.Authority = "https://accounts.google.com";
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = "https://accounts.google.com",
+            ValidateAudience = true,
+            ValidAudience = googleClientId,
+            ValidateLifetime = true,
+            NameClaimType = "name",
+            RoleClaimType = "role"
+        };
+    });
+
+builder.Services.AddAuthorization();
+
+// 3. Şemadaki 4. Adım: Claims Transformation Servisimizi Kaydediyoruz
+builder.Services.AddScoped<IClaimsTransformation, ClaimsTransformation>();
+
+// 3. FASTENDPOINTS SERVISI (Carter ve MediatR yerine tek güç)
+builder.Services.AddFastEndpoints();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
@@ -21,9 +47,17 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.MapScalarApiReference();
+    app.MapScalarApiReference(options =>
+    {
+        options.WithTitle("Harc API Portal")
+               .WithTheme(ScalarTheme.DeepSpace);
+    });
 }
 
-app.MapCarter(); // Endpoint'leri otomatik haritalar
+// 4. KORUMA ARA KATMANLARI (Middleware) - Sıralama çok kritiktir!
+app.UseAuthentication(); // Kimsin? (Google Token Kontrolü)
+app.UseAuthorization();  // Yetkin var mı? (Claims/Role Kontrolü)
+
+app.UseFastEndpoints(); // FastEndpoints rotalarını ekliyoruz
 
 app.Run();
