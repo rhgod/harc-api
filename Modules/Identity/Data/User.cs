@@ -12,9 +12,10 @@ public class User
     [Required, MaxLength(255)]
     public string FullName { get; set; } = string.Empty;
     
-    [Required, MaxLength(50)]
-    public string Role { get; set; } = "Employee"; // Admin, Manager, Employee
+    public int RoleId { get; set; }
+    public Role Role { get; set; } = null!;
     
     public string? AvatarUrl { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
+
