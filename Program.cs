@@ -1,3 +1,4 @@
+using Npgsql;
 using FastEndpoints;
 using Scalar.AspNetCore;
 using Microsoft.EntityFrameworkCore;
@@ -10,8 +11,14 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
+dataSourceBuilder.EnableDynamicJson(); // İşte hatayı çözen o sihirli satır!
+var dataSource = dataSourceBuilder.Build();
+
 builder.Services.AddDbContext<IdentityDbContext>(options =>
-    options.UseNpgsql(connectionString));
+    options.UseNpgsql(dataSource));
+
 
 var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

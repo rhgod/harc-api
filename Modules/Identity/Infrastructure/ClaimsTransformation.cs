@@ -1,22 +1,19 @@
+using System.Globalization;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Harc.Api.Modules.Identity.Data;
 using Microsoft.AspNetCore.Authentication;
-using System.Globalization;
 
 namespace Harc.Api.Modules.Identity.Infrastructure;
 
 public class ClaimsTransformation : IClaimsTransformation
 {
     private readonly IdentityDbContext _dbContext;
-    private readonly IConfiguration _configuration; // Yapılandırma servisi
-    private const string EmployeeRole = "Employee";
-    private const string AdminRole = "Admin";
+    private const int DEFAULT_ROLE_ID = 3;
 
-    public ClaimsTransformation(IdentityDbContext dbContext, IConfiguration configuration)
+    public ClaimsTransformation(IdentityDbContext dbContext)
     {
         _dbContext = dbContext;
-        _configuration = configuration;
     }
 
     public async Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
@@ -34,15 +31,13 @@ public class ClaimsTransformation : IClaimsTransformation
             return principal;
         }
 
-        var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
+        var user = await _dbContext.Users
+            .Include(u => u.Role)
+            .FirstOrDefaultAsync(u => u.Email == email);
         if (user == null)
         {
-            var systemAdminEmail = _configuration["IdentitySettings:SystemAdminEmail"];
-            string defaultRole = EmployeeRole;
-            if (email.Equals(systemAdminEmail, StringComparison.OrdinalIgnoreCase)) 
-            {
-                defaultRole = AdminRole;
-            }
+            var role = await _dbContext.Roles.FirstOrDefaultAsync(r => r.Id == DEFAULT_ROLE_ID)
+                ?? throw new InvalidOperationException($"Role with ID {DEFAULT_ROLE_ID} was not found.");
 
             var fullName = identity.FindFirst("name")?.Value ?? ExtractFullNameFromEmail(email);
             var avatarUrl = identity.FindFirst("picture")?.Value;
@@ -51,15 +46,17 @@ public class ClaimsTransformation : IClaimsTransformation
             {
                 Email = email,
                 FullName = fullName,
-                Role = defaultRole,
+                RoleId = role.Id,
                 AvatarUrl = avatarUrl
             };
 
             _dbContext.Users.Add(user);
             await _dbContext.SaveChangesAsync();
+
+            user.Role = role;
         }
 
-        identity.AddClaim(new Claim("role", user.Role));
+        identity.AddClaim(new Claim("role", user.Role.Name));
         identity.AddClaim(new Claim("harc_user_id", user.Id.ToString()));
 
         return clone;

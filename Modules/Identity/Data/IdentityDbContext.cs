@@ -9,6 +9,7 @@ public class IdentityDbContext : DbContext
     }
 
     public DbSet<User> Users => Set<User>();
+    public DbSet<Role> Roles => Set<Role>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -16,10 +17,28 @@ public class IdentityDbContext : DbContext
 
         // Bu DbContext içindeki tüm tablolar veritabanında "identity" şeması altına kurulur
         modelBuilder.HasDefaultSchema("identity");
+
+        modelBuilder.Entity<Role>(entity =>
+        {
+            entity.Property(r => r.Id).ValueGeneratedOnAdd();
+            entity.HasIndex(r => r.Name).IsUnique();
+
+            entity.Property(r => r.DisplayName)
+                  .HasColumnType("jsonb")
+                  .IsRequired();
+        });
         
-        // Unique email için index
-        modelBuilder.Entity<User>()
-            .HasIndex(u => u.Email)
-            .IsUnique();
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasIndex(u => u.Email)
+                .IsUnique();
+
+            entity.HasOne(u => u.Role)
+                .WithMany(r => r.Users)
+                .HasForeignKey(u => u.RoleId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.Property(u => u.RoleId).IsRequired();
+        });
     }
 }
