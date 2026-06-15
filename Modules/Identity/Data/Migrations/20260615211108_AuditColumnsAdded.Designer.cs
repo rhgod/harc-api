@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Harc.Api.Modules.Identity.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace harc_api.Modules.Identity.Data.Migrations
 {
     [DbContext(typeof(IdentityDbContext))]
-    partial class IdentityDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260615211108_AuditColumnsAdded")]
+    partial class AuditColumnsAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,9 +40,6 @@ namespace harc_api.Modules.Identity.Data.Migrations
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
-
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Dictionary<string, string>>("DisplayName")
                         .IsRequired()
@@ -79,9 +79,6 @@ namespace harc_api.Modules.Identity.Data.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<Dictionary<string, string>>("DisplayName")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -120,9 +117,6 @@ namespace harc_api.Modules.Identity.Data.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<Dictionary<string, string>>("DisplayName")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -159,12 +153,6 @@ namespace harc_api.Modules.Identity.Data.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("text");
-
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -189,12 +177,6 @@ namespace harc_api.Modules.Identity.Data.Migrations
 
                     b.Property<int>("TitleId")
                         .HasColumnType("integer");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("text");
 
                     b.HasKey("Id");
 

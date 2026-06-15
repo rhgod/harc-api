@@ -206,3 +206,22 @@ Mevcut migration seti `InitialIdentity` adını taşır ve şu nesneleri oluştu
 - Her modül kendi alanında yaşar; modüller arasında gevşek bağımlılık tercih edilir.
 - Yeni özellikler kendi endpoint, request, response ve iş mantığı tipleriyle birlikte ilgili feature klasöründe tutulur.
 - Kimlik doğrulama ve claim yönetimi host seviyesinde yapılır; iş mantığı modül tarafında kalır.
+
+## Veritabanı Seed Örnekleri
+```sql
+Insert into identity."Titles" ("Id", "Name", "DisplayName", "CreatedAt", "CreatedBy", "UpdatedAt", "UpdatedBy", "DeletedAt") 
+values 
+(1, 'Software_Engineer', '{"en": "Software Engineer", "tr": "Yazılım Mühendisi"}', NOW(), 'sys', NOW(), 'sys', null),
+(2, 'Business_Analyst', '{"en": "Business Analyst", "tr": "İş Analisti"}', NOW(), 'sys', NOW(), 'sys', null);
+
+Insert Into identity."Roles" ("Name", "DisplayName", "CreatedAt", "UpdatedAt", "CreatedBy", "UpdatedBy")
+Values ('Admin', '{"en": "System Admin", "tr": "Sistem Yöneticisi"}', NOW(), NOW(), 'sys', 'sys'),
+       ('Owner', '{"en":"Company Owner", "tr":"Şirket Sahibi"}', NOW(), NOW(), 'sys', 'sys'),
+       ('HR', '{"en":"HR Specialist", "tr":"İK Uzmanı"}', NOW(), NOW(), 'sys', 'sys'),
+       ('TeamLead', '{"en":"Team Lead", "tr":"Takım Lideri"}', NOW(), NOW(), 'sys', 'sys'),
+       ('Employee', '{"en":"Employee", "tr":"Çalışan"}', NOW(), NOW(), 'sys', 'sys');
+
+INSERT INTO identity."Users" ("Id", "Email", "FullName", "RoleId", "TitleId", "TeamId", "ManagerId", "Status", "AvatarUrl", "CreatedAt", "CreatedBy", "UpdatedAt", "UpdatedBy")
+values 
+('54a4ac29-0a50-44e8-bdd0-5bf200cea6cb', 'evrmarda@gmail.com', 'Evrim Kalafat', 1, 1, NULL, NULL, 1, 'https://example.com/avatar.jpg', NOW(), 'sys', NOW(), 'sys');
+```

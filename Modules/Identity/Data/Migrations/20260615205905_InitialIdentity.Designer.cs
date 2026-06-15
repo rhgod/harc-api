@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace harc_api.Modules.Identity.Data.Migrations
 {
     [DbContext(typeof(IdentityDbContext))]
-    [Migration("20260610214146_InitialIdentity")]
+    [Migration("20260615205905_InitialIdentity")]
     partial class InitialIdentity
     {
         /// <inheritdoc />
@@ -53,6 +53,58 @@ namespace harc_api.Modules.Identity.Data.Migrations
                     b.ToTable("Roles", "identity");
                 });
 
+            modelBuilder.Entity("Harc.Api.Modules.Identity.Data.Team", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<Dictionary<string, string>>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Teams", "identity");
+                });
+
+            modelBuilder.Entity("Harc.Api.Modules.Identity.Data.Title", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<Dictionary<string, string>>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Titles", "identity");
+                });
+
             modelBuilder.Entity("Harc.Api.Modules.Identity.Data.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -75,7 +127,19 @@ namespace harc_api.Modules.Identity.Data.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<Guid?>("ManagerId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("RoleId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("TeamId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TitleId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -83,23 +147,56 @@ namespace harc_api.Modules.Identity.Data.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
+                    b.HasIndex("ManagerId");
+
                     b.HasIndex("RoleId");
+
+                    b.HasIndex("TeamId");
+
+                    b.HasIndex("TitleId");
 
                     b.ToTable("Users", "identity");
                 });
 
             modelBuilder.Entity("Harc.Api.Modules.Identity.Data.User", b =>
                 {
+                    b.HasOne("Harc.Api.Modules.Identity.Data.User", "Manager")
+                        .WithMany()
+                        .HasForeignKey("ManagerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Harc.Api.Modules.Identity.Data.Role", "Role")
                         .WithMany("Users")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Harc.Api.Modules.Identity.Data.Team", "Team")
+                        .WithMany()
+                        .HasForeignKey("TeamId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Harc.Api.Modules.Identity.Data.Title", "Title")
+                        .WithMany("Users")
+                        .HasForeignKey("TitleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Manager");
+
                     b.Navigation("Role");
+
+                    b.Navigation("Team");
+
+                    b.Navigation("Title");
                 });
 
             modelBuilder.Entity("Harc.Api.Modules.Identity.Data.Role", b =>
+                {
+                    b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("Harc.Api.Modules.Identity.Data.Title", b =>
                 {
                     b.Navigation("Users");
                 });

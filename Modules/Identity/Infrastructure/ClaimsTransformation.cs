@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Harc.Api.Modules.Identity.Data;
@@ -9,7 +8,6 @@ namespace Harc.Api.Modules.Identity.Infrastructure;
 public class ClaimsTransformation : IClaimsTransformation
 {
     private readonly IdentityDbContext _dbContext;
-    private const int DEFAULT_ROLE_ID = 3;
 
     public ClaimsTransformation(IdentityDbContext dbContext)
     {
@@ -24,8 +22,9 @@ public class ClaimsTransformation : IClaimsTransformation
         }
 
         var clone = principal.Clone();
-        var identity = (ClaimsIdentity)clone.Identity!;    
+        var identity = (ClaimsIdentity)clone.Identity!;
         var email = identity.FindFirst("email")?.Value;
+
         if (string.IsNullOrEmpty(email))
         {
             return principal;
@@ -34,47 +33,20 @@ public class ClaimsTransformation : IClaimsTransformation
         var user = await _dbContext.Users
             .Include(u => u.Role)
             .FirstOrDefaultAsync(u => u.Email == email);
+
         if (user == null)
         {
-            var role = await _dbContext.Roles.FirstOrDefaultAsync(r => r.Id == DEFAULT_ROLE_ID)
-                ?? throw new InvalidOperationException($"Role with ID {DEFAULT_ROLE_ID} was not found.");
+            throw new BusinessException("ERR_USER_NOT_FOUND");
+        }
 
-            var fullName = identity.FindFirst("name")?.Value ?? ExtractFullNameFromEmail(email);
-            var avatarUrl = identity.FindFirst("picture")?.Value;
-
-            user = new User
-            {
-                Email = email,
-                FullName = fullName,
-                RoleId = role.Id,
-                AvatarUrl = avatarUrl
-            };
-
-            _dbContext.Users.Add(user);
-            await _dbContext.SaveChangesAsync();
-
-            user.Role = role;
+        if (user.Status == UserStatus.Terminated)
+        {
+            throw new BusinessException("ERR_ACCOUNT_TERMINATED");
         }
 
         identity.AddClaim(new Claim("role", user.Role.Name));
         identity.AddClaim(new Claim("harc_user_id", user.Id.ToString()));
 
         return clone;
-    }
-
-    private string ExtractFullNameFromEmail(string email)
-    {
-        try
-        {
-            var partBeforeAt = email.Split('@')[0];
-            var words = partBeforeAt.Split(new[] { '.', '_', '-' }, StringSplitOptions.RemoveEmptyEntries);
-            var textInfo = new CultureInfo("tr-TR", false).TextInfo;
-            var formattedWords = words.Select(w => textInfo.ToTitleCase(w));
-            return string.Join(" ", formattedWords);
-        }
-        catch
-        {
-            return "-";
-        }
     }
 }
