@@ -12,6 +12,8 @@ public class IdentityDbContext : DbContext
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<Team> Teams => Set<Team>();
     public DbSet<Title> Titles => Set<Title>();
+    public DbSet<Leave.Data.Leave> Leaves => Set<Leave.Data.Leave>();
+    public DbSet<Leave.Data.LeaveSetting> LeaveSettings => Set<Leave.Data.LeaveSetting>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -39,7 +41,7 @@ public class IdentityDbContext : DbContext
             entity.HasIndex(t => t.Name).IsUnique();
             entity.Property(t => t.DisplayName).HasColumnType("jsonb").IsRequired();
         });
-        
+
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasIndex(u => u.Email).IsUnique();
@@ -64,5 +66,9 @@ public class IdentityDbContext : DbContext
                 .HasForeignKey(u => u.ManagerId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
+
+        //Leave entity configuration
+        modelBuilder.Entity<Leave.Data.Leave>().ToTable("Leaves", "leave");
+        modelBuilder.Entity<Leave.Data.LeaveSetting>().ToTable("LeaveSettings", "leave");
     }
 }

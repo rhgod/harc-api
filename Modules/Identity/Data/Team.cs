@@ -1,7 +1,8 @@
 using System.ComponentModel.DataAnnotations;
+using Harc.Api.Common.Models;
 namespace Harc.Api.Modules.Identity.Data;
 
-public class Team
+public class Team : BaseEntity
 {
     public int Id { get; set; }
 
@@ -10,10 +11,4 @@ public class Team
 
     [Required, MaxLength(255)]
     public Dictionary<string, string> DisplayName { get; set; } = new();
-
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-    public string? CreatedBy { get; set; }
-    public string? UpdatedBy { get; set; }
-    public DateTimeOffset? DeletedAt { get; set; }
 }

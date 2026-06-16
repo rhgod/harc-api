@@ -170,6 +170,12 @@ namespace harc_api.Modules.Identity.Data.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<DateTime?>("EmploymentEndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("EmploymentStartDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -177,6 +183,9 @@ namespace harc_api.Modules.Identity.Data.Migrations
 
                     b.Property<Guid?>("ManagerId")
                         .HasColumnType("uuid");
+
+                    b.Property<int>("PriorExperienceMonths")
+                        .HasColumnType("integer");
 
                     b.Property<int>("RoleId")
                         .HasColumnType("integer");
@@ -212,6 +221,94 @@ namespace harc_api.Modules.Identity.Data.Migrations
                     b.ToTable("Users", "identity");
                 });
 
+            modelBuilder.Entity("Harc.Api.Modules.Leave.Data.Leave", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<double>("Days")
+                        .HasColumnType("double precision");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Leaves", "leave");
+                });
+
+            modelBuilder.Entity("Harc.Api.Modules.Leave.Data.LeaveSetting", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<double>("AllowanceAboveThreshold")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("AllowanceBelowThreshold")
+                        .HasColumnType("double precision");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("ExperienceThresholdYears")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LeaveSettings", "leave");
+                });
+
             modelBuilder.Entity("Harc.Api.Modules.Identity.Data.User", b =>
                 {
                     b.HasOne("Harc.Api.Modules.Identity.Data.User", "Manager")
@@ -245,6 +342,17 @@ namespace harc_api.Modules.Identity.Data.Migrations
                     b.Navigation("Title");
                 });
 
+            modelBuilder.Entity("Harc.Api.Modules.Leave.Data.Leave", b =>
+                {
+                    b.HasOne("Harc.Api.Modules.Identity.Data.User", "User")
+                        .WithMany("Leaves")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Harc.Api.Modules.Identity.Data.Role", b =>
                 {
                     b.Navigation("Users");
@@ -253,6 +361,11 @@ namespace harc_api.Modules.Identity.Data.Migrations
             modelBuilder.Entity("Harc.Api.Modules.Identity.Data.Title", b =>
                 {
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("Harc.Api.Modules.Identity.Data.User", b =>
+                {
+                    b.Navigation("Leaves");
                 });
 #pragma warning restore 612, 618
         }

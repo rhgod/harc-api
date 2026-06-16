@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using Harc.Api.Common.Models;
 
 namespace Harc.Api.Modules.Identity.Data;
 
-public class Role
+public class Role : BaseEntity
 {
     public int Id { get; set; }
 
@@ -13,9 +14,4 @@ public class Role
     public Dictionary<string, string> DisplayName { get; set; } = new();
 
     public ICollection<User> Users { get; set; } = new List<User>();
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-    public string? CreatedBy { get; set; }
-    public string? UpdatedBy { get; set; }
-    public DateTimeOffset? DeletedAt { get; set; }
 }

@@ -209,11 +209,13 @@ Mevcut migration seti `InitialIdentity` adını taşır ve şu nesneleri oluştu
 
 ## Veritabanı Seed Örnekleri
 ```sql
+-- Unvanlar (Titles)
 Insert into identity."Titles" ("Id", "Name", "DisplayName", "CreatedAt", "CreatedBy", "UpdatedAt", "UpdatedBy", "DeletedAt") 
 values 
 (1, 'Software_Engineer', '{"en": "Software Engineer", "tr": "Yazılım Mühendisi"}', NOW(), 'sys', NOW(), 'sys', null),
 (2, 'Business_Analyst', '{"en": "Business Analyst", "tr": "İş Analisti"}', NOW(), 'sys', NOW(), 'sys', null);
 
+-- Roller (Roles)
 Insert Into identity."Roles" ("Name", "DisplayName", "CreatedAt", "UpdatedAt", "CreatedBy", "UpdatedBy")
 Values ('Admin', '{"en": "System Admin", "tr": "Sistem Yöneticisi"}', NOW(), NOW(), 'sys', 'sys'),
        ('Owner', '{"en":"Company Owner", "tr":"Şirket Sahibi"}', NOW(), NOW(), 'sys', 'sys'),
@@ -221,7 +223,13 @@ Values ('Admin', '{"en": "System Admin", "tr": "Sistem Yöneticisi"}', NOW(), NO
        ('TeamLead', '{"en":"Team Lead", "tr":"Takım Lideri"}', NOW(), NOW(), 'sys', 'sys'),
        ('Employee', '{"en":"Employee", "tr":"Çalışan"}', NOW(), NOW(), 'sys', 'sys');
 
-INSERT INTO identity."Users" ("Id", "Email", "FullName", "RoleId", "TitleId", "TeamId", "ManagerId", "Status", "AvatarUrl", "CreatedAt", "CreatedBy", "UpdatedAt", "UpdatedBy")
+-- Kullanıcılar (Users)
+INSERT INTO identity."Users" ("Id", "Email", "FullName", "RoleId", "TitleId", "TeamId", "ManagerId", "Status", "EmploymentStartDate", "PriorExperienceMonths", "AvatarUrl", "CreatedAt", "CreatedBy", "UpdatedAt", "UpdatedBy")
 values 
-('54a4ac29-0a50-44e8-bdd0-5bf200cea6cb', 'evrmarda@gmail.com', 'Evrim Kalafat', 1, 1, NULL, NULL, 1, 'https://example.com/avatar.jpg', NOW(), 'sys', NOW(), 'sys');
+('54a4ac29-0a50-44e8-bdd0-5bf200cea6cb', 'evrmarda@gmail.com', 'Evrim Kalafat', 1, 1, NULL, NULL, 1, '2022-12-12', 12, 'https://example.com/avatar.jpg', NOW(), 'sys', NOW(), 'sys');
+
+-- İzin Ayarları (LeaveSettings)
+-- Kurallar: 15 yıl tecrübe altına 20 gün, 15 yıl ve üzerine 25 gün izin.
+INSERT INTO leave."LeaveSettings" ("Id", "ExperienceThresholdYears", "AllowanceBelowThreshold", "AllowanceAboveThreshold", "CreatedAt", "CreatedBy", "UpdatedAt", "UpdatedBy", "DeletedAt")
+VALUES (1, 15, 20, 25, NOW(), 'sys', NOW(), 'sys', null);
 ```

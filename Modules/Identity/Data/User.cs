@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Harc.Api.Common.Models;
 
 namespace Harc.Api.Modules.Identity.Data;
 
@@ -10,7 +11,7 @@ public enum UserStatus
     Contractor = 4
 }
 
-public class User
+public class User : BaseEntity
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     
@@ -31,14 +32,13 @@ public class User
     
     public Guid? ManagerId { get; set; }
     public User? Manager { get; set; }
-    
-    public UserStatus Status { get; set; } = UserStatus.Active;
-    
+
+    public DateTime EmploymentStartDate { get; set; }
+    public DateTime? EmploymentEndDate { get; set; }
+    public int PriorExperienceMonths { get; set; }
+    public ICollection<Leave.Data.Leave> Leaves { get; set; } = new List<Leave.Data.Leave>();
+
     public string? AvatarUrl { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-    public string? CreatedBy { get; set; }
-    public string? UpdatedBy { get; set; }
-    public DateTimeOffset? DeletedAt { get; set; }
+    public UserStatus Status { get; set; } = UserStatus.Active;
 }
 
