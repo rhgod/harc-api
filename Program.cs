@@ -9,6 +9,7 @@ using Harc.Api.Modules.Identity.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddServiceDefaults();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
@@ -66,5 +67,11 @@ app.UseAuthentication(); // Kimsin? (Google Token Kontrolü)
 app.UseAuthorization();  // Yetkin var mı? (Claims/Role Kontrolü)
 
 app.UseFastEndpoints(); // FastEndpoints rotalarını ekliyoruz
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
+    dbContext.Database.Migrate();
+}
 
 app.Run();
